@@ -1,0 +1,132 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import os
+
+class RestaurantOrderManagement:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Restaurant Mangment App")
+        self.root.geometry("800x600")
+
+        self.menu_items = {
+            "FRENCH FRIES": 2,
+            "BURGER MEAL": 2,
+            "DINNER MEAL": 3,
+            "DRINKS": 4,
+
+        }
+
+        self.exchange_rate = 82
+
+        self.setup_background()
+
+        frame = ttk.Frame(root)
+        frame.place(relx=0.5,rely=0.5,anchor=tk.CENTER)
+
+        ttk.Label(
+            frame,
+            text="Restaurant Order Managment",
+            font=("Aerial", 20, "bold")
+        ).grid(row=0,columnspan=3, pady=10)
+
+        self.menu_labels = {}
+        self.menu_quantities = {}
+
+        for i, (item, price) in enumerate(self.menu_items.items(), start=1):
+                label = ttk.Label(
+                frame,
+                text = f"{item} (${price:.2f})",
+                font=("Aerial, 12")
+            )
+        label.grid(row=i, column=0, padx=5, sticky="w")
+            
+        self.menu_labels[item] = label
+
+        entry = ttk.Entry(frame, width=5)
+
+        entry.grid(row=i, column=1, padx=10, pady=5)
+        self.menu_quantities[item] = entry
+
+        self.currency_var = tk.StringVar(value="USD")
+
+        ttk.Label(frame, text="Currency:", font=("Aerial", 12)).grid(
+            row=len(self.menu_item) + 1, column=0,padx=5,sticky="w"
+        ) 
+
+        currency_dropdown = ttk.Combobox(
+            frame,
+            textvariable=self.currency_var,
+            state="readonly",
+            value=("USD", "INR"),
+            width=15
+        )
+        currency_dropdown.grid(row=len(self.menu_item) +1, column=1,pady=5)
+
+        self.currency_var.trace_add("write", self.update_menu_prices)
+
+        ttk.Button(
+            frame,
+            text="Place Order",
+            command=self.place_order
+        ).grid(row=len(self.menu_items) +2, columnspan=3, pady=15)
+
+    def setup_background(self):
+        self.canvas = tk.Canvas(self.root, highlightthickness=0)
+        self.canvas.place(x=0,y=0,relwidth=1, relheight=1)
+
+        # base_dir = os.path.dirname(os.path.abspath(__file__))
+        # image_path = os.path.join(base_dir, "bg.png")
+
+        # self.bg_image = tk.PhotoImage(file=image_path)
+
+        # self.canvas.create_image(0,0, anchor=tk.NW, image=self.bg_image)
+        self.canvas.lower("all")
+
+    def update_menu_price(self, *args):
+        currency = self.currency_var.get()
+        symbol = "₹" if currency == "INR" else "$"
+        rate = self.exchange_rate if currency == "INR" else 1
+
+        for item,label in self.menu_label.items():
+            price = self.menu_items [item] * rate
+            label.config(text=f"{item}({symbol}{price:.2f})")
+                         
+    def place_order(self):
+            total_cost=0
+            currency = self.currency_var.get()
+            symbol = "₹" if currency == "INR" else "$"
+            rate = self.exchange_rate if currency == "INR" else 1
+
+            order_summary = "Order Summary:\n\n"
+
+            for item,entry in self.menu_quantities.items():
+                try:
+                    quantity = int (entry.get())
+                except ValueError:
+                    quantity=0
+
+            if quantity > 0:
+                price = self.menu_items[item] * rate
+            cost= quantity * price
+            total+= cost
+            order_summary += (
+                f"{item}: {quantity} x {symbol}{price:.2f} = {symbol}{cost:.2f}\n"
+
+            )
+    
+            
+            if total_cost > 0:
+
+                order_summary += f"\nTotal Cost: {symbol}{total_cost:.2f}"
+
+                messagebox.showinfo("Order Placed", order_summary)
+
+            else:
+
+                messagebox.showerror("Error", "Please order at least one item.")
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    RestaurantOrderManagement(root)
+    root.mainloop()
